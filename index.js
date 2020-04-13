@@ -1,65 +1,67 @@
 const myexpress = require('express');
-const cors = require('cors')
-const app = myexpress();
 const MongoClient = require('mongodb').MongoClient;
+const cors = require('cors');
+const bodyParser = require('body-parser');
+
+const corsConfig = require('./cors-config');
+const app = myexpress();
 
 const PORT = 9000;
 const uri = `mongodb+srv://manusankar410:ajG61LSj4yb7HFIO@cluster0-5ahtq.mongodb.net/test?retryWrites=true&w=majority`;
 
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.listen(PORT,()=>{console.log(`hmm listeneing ${PORT}`)});
 
 
 app.get("/", (req, res) => {
-  res.status(200).send("WHATABYTE: Food For Devs");
+  res.status(200).send("Welcome to Events API");
 });
 
-app.get("/incidents/:id",(req, res)=>{
-
-	console.log("id:::",req.params.id);
-
-	let data = [{name:'siva',id:101},{name:'manasa',id:102}];
-	 let filter = data.filter(item=>item.id == req.params.id);
-	 console.log(">>filter")
-	res.send(filter);
-})
 
 
-
- app.get("/incidents", (request, response) => {
-	console.log(">>>>>>>>>>>>>>>>>>>>>>");
-    db.initialize('favorite_songs', 'songs', function (dbCollection) {
-        dbCollection.find().toArray(function (err, result) {
-            if (err) throw err;
-            response.json(result || []);
-            console.log(result);
-         });
-      }, function (err) {
-         throw (err);
-      });
- });
-
-
-
-const corsOptions = {
-  origin: '*',
-  optionsSuccessStatus: 200 
-}
-
-
- app.get("/events",cors(corsOptions), (request, response) => {
+ app.get("/events",cors(corsConfig), (request, response) => {
 	console.log(">>>>>>>>>>>>>>>>events>>>>>>");
 
-	const client = new MongoClient(uri, { useNewUrlParser: true });
-	
-	client.connect(err => {
-	  const collection = client.db("favorite_songs").collection("songs");
+	MongoClient.connect(uri,(err ,db)=> {
+	  const collection = db.db("full_calender").collection("calender_events");
 	  collection.find().toArray((err, result)=>{
 	  		if(err) throw err;
 	  		response.json(result || []);
 	  	})
-	  client.close();
+	  db.close();
+	});
+	
+ });
+
+app.post('/events',cors(corsConfig),(request,response)=>{
+	console.log('>>>>>>>>>>>>>>>>',request.body);
+
+	MongoClient.connect(uri, function(err, db) {
+	  if (err) throw err;
+	  var dbo = db.db("full_calender");
+	  var myobj = request.body;
+	  dbo.collection("calender_events").insertOne(myobj, function(err, res) {
+	    if (err) response.json({ok:false});
+	    console.log("1 document inserted");
+	    response.json({ok:true})
+	    db.close();
+	  });
+});
+})
+
+app.get("/new-calender",cors(corsConfig), (request, response) => {
+	console.log(">>>>>>>>>>>>>>>> new-calender >>>>>>");
+
+	MongoClient.connect(uri,(err ,db)=> {
+	  const collection = db.db("full_calender").collection("create_new_calender");
+	  collection.find().toArray((err, result)=>{
+	  		if(err) throw err;
+	  		response.json(result || []);
+	  	})
+	  db.close();
 	});
 	
  });
