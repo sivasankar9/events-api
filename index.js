@@ -3,7 +3,8 @@ const cors = require('cors')
 const app = myexpress();
 const MongoClient = require('mongodb').MongoClient;
 
-const PORT = 9000;
+const PORT = process.env.PORT || 9000;
+
 const uri = `mongodb+srv://manusankar410:ajG61LSj4yb7HFIO@cluster0-5ahtq.mongodb.net/test?retryWrites=true&w=majority`;
 
 app.use(cors());
