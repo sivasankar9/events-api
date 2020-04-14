@@ -6,7 +6,8 @@ const bodyParser = require('body-parser');
 const corsConfig = require('./cors-config');
 const app = myexpress();
 
-const PORT = 9000;
+const PORT = process.env.PORT || 9000;
+
 const uri = `mongodb+srv://manusankar410:ajG61LSj4yb7HFIO@cluster0-5ahtq.mongodb.net/test?retryWrites=true&w=majority`;
 
 app.use(cors());
