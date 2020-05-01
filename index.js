@@ -100,3 +100,18 @@ app.post('/update-new-calender',cors(corsConfig),(request,response)=>{
 	  });
 });
 })
+
+app.get('/priority-events',cors(corsConfig),(request,response)=>{
+	console.log(">>>>>>>>>>>priority-events>>>>>>>>>");
+	MongoClient.connect(uri,(err,db)=>{
+		const collection = db.db("full_calender").collection("priority_status");
+		collection.find().toArray((err,result)=>{
+			if(err)throw err;
+			response.json(result || []);
+		});
+		db.close();
+	});
+
+});
+
+
