@@ -85,13 +85,12 @@ app.post('/new-calender',cors(corsConfig),(request,response)=>{
 
 app.post('/update-new-calender',cors(corsConfig),(request,response)=>{
 	console.log('>>>>>>>>>>>>>>>>',request.body.ischecked);
-
-
+  
 	MongoClient.connect(uri, function(err, db) {
 	  if (err) throw err;
 	  var dbo = db.db("full_calender");
 	  var myQuery = {ObjId: request.body.ObjId};
-	  var myobj = { $set: {isSelected:request.body.isSelected?true:false} };
+	  var myobj = { $set: {isSelected:request.body.isSelected } };
 	  dbo.collection("create_new_calender").updateOne(myQuery,myobj, function(err, res) {
 	    if (err) response.json({ok:false});
 	    console.log("1 document inserted");
