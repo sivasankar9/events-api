@@ -2,7 +2,6 @@ const myexpress = require('express');
 const MongoClient = require('mongodb').MongoClient;
 const cors = require('cors');
 const bodyParser = require('body-parser');
-
 const corsConfig = require('./cors-config');
 const app = myexpress();
 
@@ -85,13 +84,14 @@ app.post('/new-calender',cors(corsConfig),(request,response)=>{
 })
 
 app.post('/update-new-calender',cors(corsConfig),(request,response)=>{
-	console.log('>>>>>>>>>>>>>>>>',request.body);
+	console.log('>>>>>>>>>>>>>>>>',request.body.ischecked);
+
 
 	MongoClient.connect(uri, function(err, db) {
 	  if (err) throw err;
 	  var dbo = db.db("full_calender");
 	  var myQuery = {ObjId: request.body.ObjId};
-	  var myobj = { $set: {isSelected:request.body.isSelected } };
+	  var myobj = { $set: {isSelected:request.body.isSelected?true:false} };
 	  dbo.collection("create_new_calender").updateOne(myQuery,myobj, function(err, res) {
 	    if (err) response.json({ok:false});
 	    console.log("1 document inserted");
@@ -100,3 +100,16 @@ app.post('/update-new-calender',cors(corsConfig),(request,response)=>{
 	  });
 });
 })
+
+app.get('/priority-events',cors(corsConfig),(request,response)=>{
+	console.log(">>>>>>>>>>>priority-events>>>>>>>>>");
+	MongoClient.connect(uri,(err,db)=>{
+		const collection = db.db("full_calender").collection("priority_status");
+		collection.find().toArray((err,result)=>{
+			if(err)throw err;
+			response.json(result || []);
+		});
+		db.close();
+	});
+
+});
