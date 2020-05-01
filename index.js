@@ -86,7 +86,6 @@ app.post('/new-calender',cors(corsConfig),(request,response)=>{
 app.post('/update-new-calender',cors(corsConfig),(request,response)=>{
 	console.log('>>>>>>>>>>>>>>>>',request.body.ischecked);
 
-
 	MongoClient.connect(uri, function(err, db) {
 	  if (err) throw err;
 	  var dbo = db.db("full_calender");
