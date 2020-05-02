@@ -1,14 +1,13 @@
 {
-  "name": "node",
+  "name": "events-api",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "watch": "nodemon ./index.js",
-    "start:node": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:node": "node index.js"
   },
-  "author": "",
+  "author": "manasa sivasankar",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
