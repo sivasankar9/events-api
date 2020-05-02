@@ -16,6 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.listen(PORT,()=>{console.log(`hmm listeneing ${PORT}`)});
 
+app.options('*', cors(corsConfig));
 
 app.get("/", (req, res) => {
   res.status(200).send("Welcome to Events API");
@@ -23,7 +24,7 @@ app.get("/", (req, res) => {
 
 
 
- app.get("/events",cors(corsConfig), (request, response) => {
+ app.get("/events", (request, response) => {
 	console.log(">>>>>>>>>>>>>>>>events>>>>>>");
 
 	MongoClient.connect(uri,(err ,db)=> {
@@ -37,7 +38,7 @@ app.get("/", (req, res) => {
 	
  });
 
-app.post('/events',cors(corsConfig),(request,response)=>{
+app.post('/events', (request,response)=>{
 	console.log('>>>>>>>>>>>>>>>>',request.body);
 
 	MongoClient.connect(uri, function(err, db) {
@@ -53,7 +54,7 @@ app.post('/events',cors(corsConfig),(request,response)=>{
 });
 })
 
-app.get("/new-calender",cors(corsConfig), (request, response) => {
+app.get("/new-calender", (request, response) => {
 	console.log(">>>>>>>>>>>>>>>> new-calender >>>>>>");
 
 	MongoClient.connect(uri,(err ,db)=> {
@@ -68,7 +69,7 @@ app.get("/new-calender",cors(corsConfig), (request, response) => {
  });
 
 
-app.post('/new-calender',cors(corsConfig),(request,response)=>{
+app.post('/new-calender',(request,response)=>{
 	console.log('>>>>>>>>>>>>>>>>',request.body);
 
 	MongoClient.connect(uri, function(err, db) {
@@ -84,7 +85,7 @@ app.post('/new-calender',cors(corsConfig),(request,response)=>{
 });
 })
 
-app.post('/update-new-calender',cors(corsConfig),(request,response)=>{
+app.post('/update-new-calender',(request,response)=>{
 	console.log('>>>>>>>>>>>>>>>>',request.body);
 
 	MongoClient.connect(uri, function(err, db) {
@@ -101,7 +102,7 @@ app.post('/update-new-calender',cors(corsConfig),(request,response)=>{
 });
 })
 
-app.get('/priority-events',cors(corsConfig),(request,response)=>{
+app.get('/priority-events',(request,response)=>{
 	console.log(">>>>>>>>>>>priority-events>>>>>>>>>");
 	MongoClient.connect(uri,(err,db)=>{
 		const collection = db.db("full_calender").collection("priority_status");
@@ -115,3 +116,6 @@ app.get('/priority-events',cors(corsConfig),(request,response)=>{
 });
 
 
+app.get('*',(req, res)=>{
+	res.sendStatus(404)
+});
