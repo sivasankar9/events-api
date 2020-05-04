@@ -116,6 +116,59 @@ app.get('/priority-events',(request,response)=>{
 });
 
 
+app.post('/create-user',(request, response)=>{
+	console.log(">>>>>>>>>>>create-user>>>>>>>>>",request.body);
+	
+	MongoClient.connect(uri, {useUnifiedTopology:true}, function(err, db) {
+
+	  if (err) throw err;
+	  
+	  var dbo = db.db("full_calender");
+	  var userProfile = request.body;
+
+	  //fix find users and then create
+
+	  let isUserExists = false;
+	  let isUserCollectionExists = false;
+
+
+	  if(!isUserCollectionExists){
+		  
+		dbo.createCollection(`${userProfile.username}_events`,(err, res)=>{
+		  	if (err) throw err;
+	        console.log("events Collection is created! for ",userProfile.username);
+	        db.close();
+	  	});
+
+	  	dbo.createCollection(`${userProfile.username}_new_calender`,(err, res)=>{
+		  	if (err) throw err;
+	        console.log("events Collection is created! for ",userProfile.username);
+	        db.close();
+	  	});
+
+
+	  	if(!isUserExists){
+
+		  	dbo.collection("users").insertOne(userProfile, function(err, res) {
+
+			    if (err) status(444).send({error:true, message:'Server eror unable to insertOne'});
+			    console.log("1 document inserted");
+			    response.status(200).send({ok:true})
+			    db.close();
+		  	});
+
+	 	 }
+
+
+	  	// db.close();
+
+	  }
+
+	});
+
+});
+
+
 app.get('*',(req, res)=>{
-	res.sendStatus(404)
+	res.status(404).send({error:true, message:'No route found'})
 });
