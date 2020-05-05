@@ -168,6 +168,28 @@ app.post('/create-user',(request, response)=>{
 
 });
 
+app.post('/login', (request, response)=>{
+	console.log(">>>>>>>>>>>login>>>>>>>>>",request.body);
+	const username = request.body.username;
+	MongoClient.connect(uri,(err,db)=>{
+		const collection = db.db("full_calender").collection("users");
+		collection.findOne({ username }, (error, result) => {
+			console.log("userfound",result);
+            
+            if(result){
+                
+                response.status(200).send({"isLogin" : true, message:'User found'});
+            
+            }else{
+                
+                response.status(404).send({error:true, message:'User not found'});
+            
+            }
+		});
+		db.close();
+	});
+
+});
 
 app.get('*',(req, res)=>{
 	res.status(404).send({error:true, message:'No route found'})
