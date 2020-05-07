@@ -1,3 +1,4 @@
+require('dotenv').config();
 const myexpress = require('express');
 const MongoClient = require('mongodb').MongoClient;
 const cors = require('cors');
@@ -88,7 +89,7 @@ app.get("/new-calender",authenticate, (request, response) => {
 	console.log("::username:::",username);
 
 	MongoClient.connect(uri,(err ,db)=> {
-	  const collection = db.db("full_calender").collection(`${username}new_calender`);
+	  const collection = db.db("full_calender").collection(`${username}_new_calender`);
 	  collection.find().toArray((err, result)=>{
 	  		if(err) throw err;
 	  		response.json(result || []);
