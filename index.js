@@ -5,11 +5,37 @@ const bodyParser = require('body-parser');
 
 const corsConfig = require('./cors-config');
 const app = myexpress();
+const jwt = require('jsonwebtoken');
 
 const PORT = process.env.PORT || 9000;
 
 const uri = `mongodb+srv://manusankar410:ajG61LSj4yb7HFIO@cluster0-5ahtq.mongodb.net/test?retryWrites=true&w=majority`;
 
+const ACCESS_TOKEN_SECRET = 'bc798a993a0ce8b97095620421af74d5ea95e69db8f4643112a1e89cd5071aaf12f1fb2f2d5969102a19ff80f93c2465242e303b66dfede56b50ec8899981239';
+const REFRESH_TOKEN_SECRET = 'bc8958a993a0ce8b97095620421af74d5ea95e69db8f4856912a1e89cd5071aaf12f1fb2f2d5969102a19ff80f93c2465242e303b66dfede56b50ec8899981239';
+
+let refreshTokens = [];
+
+//--services
+function generateAccessToken(user) {
+  return jwt.sign(user, ACCESS_TOKEN_SECRET, { expiresIn: '1500s' })
+}
+
+function authenticate(req, res, next) {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token == null) return res.sendStatus(401);
+    console.log(">>>tocken verify", token);
+    jwt.verify(token, ACCESS_TOKEN_SECRET, (err, username) => {
+
+        if (err)  return res.sendStatus(403);
+        console.log(">>username", username);
+        req.username = username;
+        next();
+    });
+}
+
+//--services
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -24,11 +50,12 @@ app.get("/", (req, res) => {
 
 
 
- app.get("/events", (request, response) => {
-	console.log(">>>>>>>>>>>>>>>>events>>>>>>");
-
+app.get("/events", authenticate, (request, response) => {
+	console.log(">>>>>>>>>>>test-priority-events>>>request>>>>>>",request.username.username);
+    const username = request.username.username
+	console.log("::username:::",username)
 	MongoClient.connect(uri,(err ,db)=> {
-	  const collection = db.db("full_calender").collection("calender_events");
+	  const collection = db.db("full_calender").collection(`${username}_events`);
 	  collection.find().toArray((err, result)=>{
 	  		if(err) throw err;
 	  		response.json(result || []);
@@ -38,14 +65,15 @@ app.get("/", (req, res) => {
 	
  });
 
-app.post('/events', (request,response)=>{
+app.post('/events', authenticate, (request,response)=>{
 	console.log('>>>>>>>>>>>>>>>>',request.body);
-
+    const username = request.username.username;
+	console.log("::username:::",username);
 	MongoClient.connect(uri, function(err, db) {
 	  if (err) throw err;
 	  var dbo = db.db("full_calender");
 	  var myobj = request.body;
-	  dbo.collection("calender_events").insertOne(myobj, function(err, res) {
+	  dbo.collection(`${username}_events`).insertOne(myobj, function(err, res) {
 	    if (err) response.json({ok:false});
 	    console.log("1 document inserted");
 	    response.json({ok:true})
@@ -54,11 +82,13 @@ app.post('/events', (request,response)=>{
 });
 })
 
-app.get("/new-calender", (request, response) => {
-	console.log(">>>>>>>>>>>>>>>> new-calender >>>>>>");
+app.get("/new-calender",authenticate, (request, response) => {
+	console.log(">>>>>>>>>>>>>>>> new-calender >>>>>>",request.username.username);
+	const username = request.username.username;
+	console.log("::username:::",username);
 
 	MongoClient.connect(uri,(err ,db)=> {
-	  const collection = db.db("full_calender").collection("create_new_calender");
+	  const collection = db.db("full_calender").collection(`${username}new_calender`);
 	  collection.find().toArray((err, result)=>{
 	  		if(err) throw err;
 	  		response.json(result || []);
@@ -69,14 +99,16 @@ app.get("/new-calender", (request, response) => {
  });
 
 
-app.post('/new-calender',(request,response)=>{
-	console.log('>>>>>>>>>>>>>>>>',request.body);
-
+app.post('/new-calender',authenticate, (request,response)=>{
+	console.log('>>>>>post new-calender>>>>>>>>>>>',request.body);
+	console.log('>>>>>post new-calender>>>>>username>>>>>>',request.username);
+	const username = request.username.username;
+	console.log("::username:::",username);
 	MongoClient.connect(uri, function(err, db) {
 	  if (err) throw err;
 	  var dbo = db.db("full_calender");
 	  var myobj = request.body;
-	  dbo.collection("create_new_calender").insertOne(myobj, function(err, res) {
+	  dbo.collection(`${username}_new_calender`).insertOne(myobj, function(err, res) {
 	    if (err) response.json({ok:false});
 	    console.log("1 document inserted");
 	    response.json({ok:true})
@@ -168,17 +200,46 @@ app.post('/create-user',(request, response)=>{
 
 });
 
+app.post('/token', (req, res) => {
+  const refreshToken = req.body.token
+  if (refreshToken == null) return res.sendStatus(401)
+  if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403)
+  jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403)
+    const accessToken = generateAccessToken({ name: user.name })
+    res.json({ accessToken: accessToken })
+  })
+})
+
+app.delete('/logout', (req, res) => {
+  refreshTokens = refreshTokens.filter(token => token !== req.body.token)
+  res.sendStatus(204)
+})
+
+
 app.post('/login', (request, response)=>{
 	console.log(">>>>>>>>>>>login>>>>>>>>>",request.body);
+
+
+
+  // const refreshToken = jwt.sign({username}, REFRESH_TOKEN_SECRET)
+  // refreshTokens.push(refreshToken)
+  // res.json({ accessToken: accessToken, refreshToken: refreshToken });
+
+
 	const username = request.body.username;
+	console.log(">>login", username);
+
 	MongoClient.connect(uri,(err,db)=>{
 		const collection = db.db("full_calender").collection("users");
 		collection.findOne({ username }, (error, result) => {
 			console.log("userfound",result);
             
             if(result){
-                
-                response.status(200).send({"isLogin" : true, message:'User found'});
+
+            	const accessToken = generateAccessToken({username});
+
+                response.status(200).send({"isLogin" : true, message:'User found', accessToken});
             
             }else{
                 
