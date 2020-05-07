@@ -1,4 +1,3 @@
-require('dotenv').config();
 const myexpress = require('express');
 const MongoClient = require('mongodb').MongoClient;
 const cors = require('cors');
