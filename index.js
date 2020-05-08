@@ -239,7 +239,7 @@ app.post('/login', (request, response)=>{
 
             	const accessToken = generateAccessToken({username});
 
-                response.status(200).send({"isLogin" : true, message:'User found', accessToken});
+                response.status(200).send({"isLogin" : true, message:'User found', accessToken, username});
             
             }else{
                 
