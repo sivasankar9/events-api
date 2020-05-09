@@ -16,6 +16,7 @@ const REFRESH_TOKEN_SECRET = 'bc8958a993a0ce8b97095620421af74d5ea95e69db8f485691
 
 let refreshTokens = [];
 
+console.log(":::",process.env.testname);
 //--services
 function generateAccessToken(user) {
   return jwt.sign(user, ACCESS_TOKEN_SECRET, { expiresIn: '1500s' })
