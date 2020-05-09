@@ -9,14 +9,15 @@ const jwt = require('jsonwebtoken');
 
 const PORT = process.env.PORT || 9000;
 
-const uri = `mongodb+srv://manusankar410:ajG61LSj4yb7HFIO@cluster0-5ahtq.mongodb.net/test?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.USER_NAME_DB}:${process.env.PASSWORD_DB}@cluster0-5ahtq.mongodb.net/test?retryWrites=true&w=majority`;
 
 const ACCESS_TOKEN_SECRET = 'bc798a993a0ce8b97095620421af74d5ea95e69db8f4643112a1e89cd5071aaf12f1fb2f2d5969102a19ff80f93c2465242e303b66dfede56b50ec8899981239';
 const REFRESH_TOKEN_SECRET = 'bc8958a993a0ce8b97095620421af74d5ea95e69db8f4856912a1e89cd5071aaf12f1fb2f2d5969102a19ff80f93c2465242e303b66dfede56b50ec8899981239';
 
 let refreshTokens = [];
 
-console.log(":::",process.env.testname);
+console.log(":PASSWORD_DB::",process.env.PASSWORD_DB);
+console.log("::USER_NAME_DB:",process.env.USER_NAME_DB);
 //--services
 function generateAccessToken(user) {
   return jwt.sign(user, ACCESS_TOKEN_SECRET, { expiresIn: '1500s' })
