@@ -18,6 +18,7 @@ let refreshTokens = [];
 
 console.log(":PASSWORD_DB::",process.env.PASSWORD_DB);
 console.log("::USER_NAME_DB:",process.env.USER_NAME_DB);
+
 //--services
 function generateAccessToken(user) {
   return jwt.sign(user, ACCESS_TOKEN_SECRET, { expiresIn: '1500s' })
