@@ -8,6 +8,7 @@ const app = myexpress();
 const jwt = require('jsonwebtoken');
 
 const userRoutes = require("./routes/user");
+const emailRoutes = require("./routes/email");
 
 const PORT = process.env.PORT || 9000;
 
@@ -45,6 +46,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.listen(PORT,()=>{console.log(`hmm listeneing ${PORT}`)});
 app.use("/user", userRoutes);
+app.use("/email",emailRoutes)
 
 app.options('*', cors(corsConfig));
 
