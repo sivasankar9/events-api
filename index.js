@@ -7,6 +7,8 @@ const corsConfig = require('./cors-config');
 const app = myexpress();
 const jwt = require('jsonwebtoken');
 
+const userRoutes = require("./routes/user");
+
 const PORT = process.env.PORT || 9000;
 
 const uri = `mongodb+srv://${process.env.USER_NAME_DB}:${process.env.PASSWORD_DB}@cluster0-5ahtq.mongodb.net/test?retryWrites=true&w=majority`;
@@ -16,8 +18,7 @@ const REFRESH_TOKEN_SECRET = 'bc8958a993a0ce8b97095620421af74d5ea95e69db8f485691
 
 let refreshTokens = [];
 
-console.log(":PASSWORD_DB::",process.env.PASSWORD_DB);
-console.log("::USER_NAME_DB:",process.env.USER_NAME_DB);
+
 //--services
 function generateAccessToken(user) {
   return jwt.sign(user, ACCESS_TOKEN_SECRET, { expiresIn: '1500s' })
@@ -43,6 +44,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.listen(PORT,()=>{console.log(`hmm listeneing ${PORT}`)});
+app.use("/user", userRoutes);
 
 app.options('*', cors(corsConfig));
 
@@ -83,6 +85,7 @@ app.post('/events', authenticate, (request,response)=>{
 	  });
 });
 })
+
 
 app.get("/new-calender",authenticate, (request, response) => {
 	console.log(">>>>>>>>>>>>>>>> new-calender >>>>>>",request.username.username);
