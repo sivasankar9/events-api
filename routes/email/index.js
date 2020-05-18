@@ -17,7 +17,7 @@ router.post("/", (req, res) => {
 	  	console.log(":email:result",result);
 	  	if(result){
 
-	  		res.status(404).send({error:true, message:`${email}, exists`});
+	  		res.status(404).send({error:true, message:`${email} exists`});
 
 	  	}else{
 	  		
