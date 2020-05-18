@@ -149,15 +149,36 @@ app.post('/update-calender-event-by-id',authenticate, (request,response)=>{
 	console.log("::username:::",username);
 	//{"_id" : ObjectId("5eb5208bcdea2c0004142c06")}
 	/*
-	*db.city.update({_id:ObjectId("584a13d5b65761be678d4dd4")}, {$set: {"citiName":"Jakarta Pusat"}})
+	*db.city.update({_id:ObjectId("5eb52068cdea2c0004142c05")}, {$set: {"citiName":"Jakarta Pusat"}})
 	*/
 	// var myQuery = {ObjId: request.body.ObjId};
+/***
+ * 
+ *   collection.findOne({email},(err, result)=>{
+	  	if(err) throw err;
+	  	console.log(":email:result",result);
+	  	if(result){
 
+	  		res.status(404).send({error:true, message:`${email}, exists`});
+
+	  	}else{
+	  		
+	  		res.status(200).send({error:false, message:""});
+
+	  	}
+	  })
+ */
 	MongoClient.connect(uri, function(err, db) {
 	  if (err) throw err;
 	  var dbo = db.db("full_calender");
-	  var myQuery = {_id: "5eb5208bcdea2c0004142c06"}
+	  var myQuery = {_id:"5eb52068cdea2c0004142c05"};
 	  var myobj = { $set: {date:request.body.date } };
+	  //-
+	//   dbo.collection(`${username}_events`).findOne({myQuery},(err, result)=>{
+	// 	  console.log("result::::>>>",result);
+	//   })
+	  
+	  //--
 	  dbo.collection(`${username}_events`).updateOne(myQuery,myobj, function(err, res) {
 	    if (err) response.json({ok:false});
 	    console.log("1 document inserted");
