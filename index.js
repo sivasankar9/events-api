@@ -4,6 +4,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const corsConfig = require('./cors-config');
+const ObjectID = require('mongodb').ObjectID;
+
 const app = myexpress();
 const jwt = require('jsonwebtoken');
 
@@ -132,12 +134,36 @@ app.post('/update-new-calender',(request,response)=>{
 	  var dbo = db.db("full_calender");
 	  var myQuery = {ObjId: request.body.ObjId};
 	  var myobj = { $set: {isSelected:request.body.isSelected } };
-	  dbo.collection("create_new_calender").updateOne(myQuery,myobj, function(err, res) {
+	  dbo.collection("create_new_calender").update(myQuery,myobj, function(err, res) {
 	    if (err) response.json({ok:false});
 	    console.log("1 document inserted");
 	    response.json({ok:true})
 	    db.close();
 	  });
+});
+});
+
+app.post('/update-calender-event-by-id',authenticate, (request,response)=>{
+	console.log('>>>>>post calender>>>>>>>>>>>',request.body);
+	const username = request.username.username;
+	console.log("::username:::",username);
+	//{"_id" : ObjectId("5eb5208bcdea2c0004142c06")}
+	/*
+	*db.city.update({_id:ObjectId("584a13d5b65761be678d4dd4")}, {$set: {"citiName":"Jakarta Pusat"}})
+	*/
+	// var myQuery = {ObjId: request.body.ObjId};
+
+	MongoClient.connect(uri, function(err, db) {
+	  if (err) throw err;
+	  var dbo = db.db("full_calender");
+	  var myQuery = {_id: "5eb5208bcdea2c0004142c06"}
+	  var myobj = { $set: {date:request.body.date } };
+	  dbo.collection(`${username}_events`).updateOne(myQuery,myobj, function(err, res) {
+	    if (err) response.json({ok:false});
+	    console.log("1 document inserted");
+	    response.json({ok:true})
+	    db.close();
+  	});
 });
 })
 
