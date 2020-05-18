@@ -17,11 +17,11 @@ router.post("/", (req, res) => {
 	  	console.log(":user:result",result);
 	  	if(result){
 
-	  		res.status(404).send({error:true, message:`${username},is not available`});
+	  		res.status(404).send({error:true, message:`${username} is not available`});
 
 	  	}else{
 	  		
-	  		res.status(200).send({error:false, message:`${username},is available`});
+	  		res.status(200).send({error:false, message:`${username} is available`});
 
 	  	}
 	  })
