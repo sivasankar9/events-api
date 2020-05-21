@@ -151,16 +151,24 @@ app.put('/update-calender-event-by-id',authenticate, (request,response)=>{
 
 	MongoClient.connect(uri, function(err, db) {
 	  if (err) throw err;
-	  const query = {id:request.body.eventId};
+	  const query = {eventId:request.body.eventId};
 	  const update = { $set: {
 	        "date": request.body.date} 
     	};
 	  const options = {new:true};
+	  const collection = db.db("full_calender").collection(`${username}_events`)
 
-	  db.db("full_calender").collection(`${username}_events`).findOneAndUpdate(query,update, options,function(err, res) {
-	    if (err) response.json({ok:false});
-	    console.log("1 document inserted");
-	    response.json({ok:true})
+	  collection.findOneAndUpdate(query,update, options,function(err, res) {
+	    if (err) {
+			response.json({ok:false});
+			process.exit(0);
+	    };
+	    console.log("1 document updated");//fix need to be promise
+	    collection.find().toArray((err, result)=>{
+	  		if(err) throw err;
+	  		response.json(result || []);
+	  	})
+
 	    db.close();
   	});
 });
