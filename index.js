@@ -24,7 +24,7 @@ let refreshTokens = [];
 
 //--services
 function generateAccessToken(user) {
-  return jwt.sign(user, ACCESS_TOKEN_SECRET, { expiresIn: '15000s' })
+  return jwt.sign(user, ACCESS_TOKEN_SECRET, { expiresIn: '1500s' })
 }
 
 function authenticate(req, res, next) {
@@ -156,7 +156,6 @@ app.put('/update-calender-event-by-id',authenticate, (request,response)=>{
 	        "date": request.body.date} 
     	};
 	  const options = {new:true};
-
 	  const collection = db.db("full_calender").collection(`${username}_events`)
 
 	  collection.findOneAndUpdate(query,update, options,function(err, res) {
