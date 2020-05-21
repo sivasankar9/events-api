@@ -143,50 +143,28 @@ app.post('/update-new-calender',(request,response)=>{
 });
 });
 
-app.post('/update-calender-event-by-id',authenticate, (request,response)=>{
-	console.log('>>>>>post calender>>>>>>>>>>>',request.body);
+app.put('/update-calender-event-by-id',authenticate, (request,response)=>{
+	console.log('>>>>>post calender>>>>>>>eventId>>>>',request.body.eventId);
+	console.log('>>>>>post calender>>>>>>date>>>>>',request.body.date);
 	const username = request.username.username;
 	console.log("::username:::",username);
-	//{"_id" : ObjectId("5eb5208bcdea2c0004142c06")}
-	/*
-	*db.city.update({_id:ObjectId("5eb52068cdea2c0004142c05")}, {$set: {"citiName":"Jakarta Pusat"}})
-	*/
-	// var myQuery = {ObjId: request.body.ObjId};
-/***
- * 
- *   collection.findOne({email},(err, result)=>{
-	  	if(err) throw err;
-	  	console.log(":email:result",result);
-	  	if(result){
 
-	  		res.status(404).send({error:true, message:`${email}, exists`});
-
-	  	}else{
-	  		
-	  		res.status(200).send({error:false, message:""});
-
-	  	}
-	  })
- */
 	MongoClient.connect(uri, function(err, db) {
 	  if (err) throw err;
-	  var dbo = db.db("full_calender");
-	  var myQuery = {_id:"5eb52068cdea2c0004142c05"};
-	  var myobj = { $set: {date:request.body.date } };
-	  //-
-	//   dbo.collection(`${username}_events`).findOne({myQuery},(err, result)=>{
-	// 	  console.log("result::::>>>",result);
-	//   })
-	  
-	  //--
-	  dbo.collection(`${username}_events`).updateOne(myQuery,myobj, function(err, res) {
+	  const query = {id:request.body.eventId};
+	  const update = { $set: {
+	        "date": request.body.date} 
+    	};
+	  const options = {new:true};
+
+	  db.db("full_calender").collection(`${username}_events`).findOneAndUpdate(query,update, options,function(err, res) {
 	    if (err) response.json({ok:false});
 	    console.log("1 document inserted");
 	    response.json({ok:true})
 	    db.close();
   	});
 });
-})
+});
 
 app.get('/priority-events',(request,response)=>{
 	console.log(">>>>>>>>>>>priority-events>>>>>>>>>");
