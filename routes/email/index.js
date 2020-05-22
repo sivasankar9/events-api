@@ -1,34 +1,37 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const connection = require("./../../db");
+const connection = require('./../../db');
 
-router.post("/", async (req, res) => {
-  const email = req.body.email;
+router.post('/', async(req, res)=> {
 
-  try {
-    const db = await connection.initialize();
+    const email = req.body.email;
 
-    const col = db.collection("users");
+    try {
 
-    const docs = await col.findOne({ email });
+        const db = await connection.initialize();
 
-    if (docs) {
-      
-      res.status(404).send({ error: true, message: `${email} exists` });
-    
-    } else {
-      
-      res.status(200).send({ error: false, message: "" });
-    
+        const col = db.collection('users');
+
+        const docs = await col.findOne({ email });
+
+        if (docs) {
+
+            res.status(404).send({ error: true, message: `${email} exists` });
+
+        } else {
+
+            res.status(200).send({ error: false, message: '' });
+
+        }
+
+        db.close();
+
+    } catch ({ message: errorCode }) {
+
+        res.status(errorCode).send(connection.erorCodeMapper[errorCode]);
+
     }
 
-    db.close();
-    
-  } catch ({ message: errorCode }) {
-    
-    res.status(errorCode).send(connection.erorCodeMapper[errorCode]);
-  
-  }
 });
 
 module.exports = router;
