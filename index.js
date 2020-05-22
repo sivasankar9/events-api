@@ -11,6 +11,7 @@ const connection = require("./db");
 const userEvents = require("./routes/events");
 const userRoutes = require("./routes/user");
 const emailRoutes = require("./routes/email");
+const newCalenderRoutes = require("./routes/new-calender");
 
 const PORT = process.env.PORT || 9000;
 
@@ -28,52 +29,12 @@ app.listen(PORT, () => {
 app.use("/events", userEvents);
 app.use("/user", userRoutes);
 app.use("/email", emailRoutes);
+app.use("/new-calender", newCalenderRoutes);
 
 app.options("*", cors(corsConfig));
 
 app.get("/", (req, res) => {
   res.status(200).send("Welcome to Events API");
-});
-
-
-app.get("/new-calender", connection.authenticate, (request, response) => {
-  console.log(
-    ">>>>>>>>>>>>>>>> new-calender >>>>>>",
-    request.username.username
-  );
-  const username = request.username.username;
-  console.log("::username:::", username);
-
-  MongoClient.connect(uri, (err, db) => {
-    const collection = db
-      .db("full_calender")
-      .collection(`${username}_new_calender`);
-    collection.find().toArray((err, result) => {
-      if (err) throw err;
-      response.json(result || []);
-    });
-    db.close();
-  });
-});
-
-app.post("/new-calender", connection.authenticate, (request, response) => {
-  console.log(">>>>>post new-calender>>>>>>>>>>>", request.body);
-  console.log(">>>>>post new-calender>>>>>username>>>>>>", request.username);
-  const username = request.username.username;
-  console.log("::username:::", username);
-  MongoClient.connect(uri, function (err, db) {
-    if (err) throw err;
-    var dbo = db.db("full_calender");
-    var myobj = request.body;
-    dbo
-      .collection(`${username}_new_calender`)
-      .insertOne(myobj, function (err, res) {
-        if (err) response.json({ ok: false });
-        console.log("1 document inserted");
-        response.json({ ok: true });
-        db.close();
-      });
-  });
 });
 
 app.post("/update-new-calender", (request, response) => {
