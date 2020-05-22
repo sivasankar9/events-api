@@ -12,8 +12,6 @@ router.post("/", async (req, res) => {
 
     const docs = await col.findOne({ email });
 
-    db.close();
-
     if (docs) {
       
       res.status(404).send({ error: true, message: `${email} exists` });
@@ -23,6 +21,9 @@ router.post("/", async (req, res) => {
       res.status(200).send({ error: false, message: "" });
     
     }
+
+    db.close();
+    
   } catch ({ message: errorCode }) {
     
     res.status(errorCode).send(connection.erorCodeMapper[errorCode]);
