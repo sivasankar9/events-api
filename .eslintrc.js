@@ -115,7 +115,7 @@ module.exports = {
         ],
         'max-statements': [
             2,
-            10,
+            20,
             {
                 ignoreTopLevelFunctions: true
             }
