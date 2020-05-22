@@ -1,51 +1,53 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const connection = require("../../db");
+const connection = require('../../db');
 
-router.get("/", connection.authenticate, async (request, response) => {
-  
-  const username = request.username;
+router.get('/', connection.authenticate, async(request, response)=> {
 
-  try {
-    const db = await connection.initialize();
+    const username = request.username;
 
-    const col = db.collection(`${username}_events`);
+    try {
 
-    const docs = await col.find().toArray();
+        const db = await connection.initialize();
 
-    
-    response.send(docs);
-    
-    db.close();
-    
-  } catch ({ message: errorCode }) {
-    
-    response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
-  
-  }
+        const col = db.collection(`${username}_events`);
+
+        const docs = await col.find().toArray();
+
+        response.send(docs);
+
+        db.close();
+
+    } catch ({ message: errorCode }) {
+
+        response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
+
+    }
 
 });
 
-router.post("/", connection.authenticate, async (request, response) => {
-  
-  const {username, body} = request;
+router.post('/', connection.authenticate, async(request, response)=> {
 
-  try {
-    const db = await connection.initialize();
+    const {username, body} = request;
 
-    const col = db.collection(`${username}_events`);
+    try {
 
-    const docs = await col.insertOne(body);
+        const db = await connection.initialize();
 
-    response.send(docs);
-    
-    db.close();
-  
-  } catch ({ message: errorCode }) {
-    
-    response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
-  
-  }
+        const col = db.collection(`${username}_events`);
+
+        const docs = await col.insertOne(body);
+
+        response.send(docs);
+
+        db.close();
+
+    } catch ({ message: errorCode }) {
+
+        response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
+
+    }
+
 });
 
 module.exports = router;
