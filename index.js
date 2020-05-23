@@ -11,7 +11,6 @@ const connection = require("./db");
 const userEvents = require("./routes/events");
 const userRoutes = require("./routes/user");
 const emailRoutes = require("./routes/email");
-const loginRoutes = require("./routes/login");
 const newCalenderRoutes = require("./routes/new-calender");
 
 const PORT = process.env.PORT || 9000;
@@ -30,7 +29,6 @@ app.listen(PORT, () => {
 app.use("/events", userEvents);
 app.use("/user", userRoutes);
 app.use("/email", emailRoutes);
-app.use("/login", loginRoutes);
 app.use("/new-calender", newCalenderRoutes);
 
 app.options("*", cors(corsConfig));
@@ -175,6 +173,38 @@ app.post("/token", (req, res) => {
 app.delete("/logout", (req, res) => {
   refreshTokens = refreshTokens.filter((token) => token !== req.body.token);
   res.sendStatus(204);
+});
+
+app.post("/login", (request, response) => {
+  console.log(">>>>>>>>>>>login>>>>>>>>>", request.body);
+
+  // const refreshToken = jwt.sign({username}, REFRESH_TOKEN_SECRET)
+  // refreshTokens.push(refreshToken)
+  // res.json({ accessToken: accessToken, refreshToken: refreshToken });
+
+  const username = request.body.username;
+  console.log(">>login", username);
+
+  MongoClient.connect(uri, (err, db) => {
+    const collection = db.db("full_calender").collection("users");
+    collection.findOne({ username }, (error, result) => {
+      console.log("userfound", result);
+
+      if (result) {
+        const accessToken = connection.generateAccessToken({ username });
+
+        response.status(200).send({
+          isLogin: true,
+          message: "User found",
+          accessToken,
+          username,
+        });
+      } else {
+        response.status(404).send({ error: true, message: "User not found" });
+      }
+    });
+    db.close();
+  });
 });
 
 app.get("*", (req, res) => {

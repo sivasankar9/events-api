@@ -1,34 +1,37 @@
 const express = require("express");
 const router = express.Router();
-const connection = require("./../../db");
+const connection = require('./../../db');
 
-router.post("/", async (req, res) => {
-  const username = req.body.username;
+router.post("/", async(req, res) => {
 
-  try {
-    const db = await connection.initialize();
+	const username = req.body.username;
 
-    const col = db.collection("users");
+	try{
+		const db = await connection.initialize();
 
-    const docs = await col.findOne({ username });
+		const col = db.collection('users');
+		
+		const docs = await col.findOne({username});
 
-    if (docs) {
-      res.status(404).send({ error: true, message: "User not found" });
-    } else {
-      const accessToken = connection.generateAccessToken({ username });
+		db.close();
+		
+		if(docs){
 
-      res.status(200).send({
-        isLogin: true,
-        message: "User found",
-        accessToken,
-        username,
-      });
-    }
+			res.status(404).send({error:true, message:`${username} is not available`});
 
-    db.close();
-  } catch ({ message: errorCode }) {
-    res.status(errorCode).send(connection.erorCodeMapper[errorCode]);
-  }
+		}else{
+			
+			res.status(200).send({error:false, message:`${username} is available`});
+		}
+
+		
+	
+	}catch({message:errorCode}){
+		
+		res.status(errorCode).send(connection.erorCodeMapper[errorCode]);
+	}
+
 });
+
 
 module.exports = router;
