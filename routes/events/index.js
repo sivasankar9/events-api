@@ -1,53 +1,51 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const connection = require('../../db');
+const connection = require("../../db");
 
-router.get('/', connection.authenticate, async(request, response)=> {
+router.get("/", connection.authenticate, async (request, response) => {
+  
+  const username = request.username;
 
-    const username = request.username;
+  try {
+    const db = await connection.initialize();
 
-    try {
+    const col = db.collection(`${username}_events`);
 
-        const db = await connection.initialize();
+    const docs = await col.find().toArray();
 
-        const col = db.collection(`${username}_events`);
-
-        const docs = await col.find().toArray();
-
-        response.send(docs);
-
-        db.close();
-
-    } catch ({ message: errorCode }) {
-
-        response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
-
-    }
+    
+    response.send(docs);
+    
+    db.close();
+    
+  } catch ({ message: errorCode }) {
+    
+    response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
+  
+  }
 
 });
 
-router.post('/', connection.authenticate, async(request, response)=> {
+router.post("/", connection.authenticate, async (request, response) => {
+  
+  const {username, body} = request;
 
-    const {username, body} = request;
+  try {
+    const db = await connection.initialize();
 
-    try {
+    const col = db.collection(`${username}_events`);
 
-        const db = await connection.initialize();
+    const docs = await col.insertOne(body);
 
-        const col = db.collection(`${username}_events`);
-
-        const docs = await col.insertOne(body);
-
-        response.send(docs);
-
-        db.close();
-
-    } catch ({ message: errorCode }) {
-
-        response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
-
-    }
-
+    response.send(docs);
+    
+    db.close();
+  
+  } catch ({ message: errorCode }) {
+    
+    response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
+  
+  }
 });
 
 module.exports = router;
