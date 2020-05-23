@@ -1,36 +1,31 @@
 const express = require("express");
 const router = express.Router();
-const connection = require('./../../db');
+const jwt = require('jsonwebtoken');
+const MongoClient = require('mongodb').MongoClient;
 
-router.post("/", async(req, res) => {
+const uri = `mongodb+srv://${process.env.USER_NAME_DB}:${process.env.PASSWORD_DB}@cluster0-5ahtq.mongodb.net/test?retryWrites=true&w=majority`;
 
+router.post("/", (req, res) => {
+
+	console.log("req user",req.body.username);
 	const username = req.body.username;
 
-	try{
-		const db = await connection.initialize();
+	MongoClient.connect(uri,(err ,db)=> {
+	  const collection = db.db("full_calender").collection('users');
+	  collection.findOne({username},(err, result)=>{
+	  	if(err) throw err;
+	  	console.log(":user:result",result);
+	  	if(result){
 
-		const col = db.collection('users');
-		
-		const docs = await col.findOne({username});
+	  		res.status(404).send({error:true, message:`${username} is not available`});
 
-		
-		if(docs){
-			
-			res.status(404).send({error:true, message:`${username} is not available`});
-			
-		}else{
-			
-			res.status(200).send({error:false, message:`${username} is available`});
-		}
-		
-		db.close();
-		
-	
-	}catch({message:errorCode}){
-		
-		res.status(errorCode).send(connection.erorCodeMapper[errorCode]);
-	}
+	  	}else{
+	  		
+	  		res.status(200).send({error:false, message:`${username} is available`});
 
+	  	}
+	  })
+	});
 });
 
 

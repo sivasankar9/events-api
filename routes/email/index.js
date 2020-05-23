@@ -1,33 +1,32 @@
 const express = require("express");
 const router = express.Router();
-const connection = require("./../../db");
+const jwt = require('jsonwebtoken');
+const MongoClient = require('mongodb').MongoClient;
 
-router.post("/", async (req, res) => {
-  const email = req.body.email;
+const uri = `mongodb+srv://${process.env.USER_NAME_DB}:${process.env.PASSWORD_DB}@cluster0-5ahtq.mongodb.net/test?retryWrites=true&w=majority`;
 
-  try {
-    const db = await connection.initialize();
+router.post("/", (req, res) => {
 
-    const col = db.collection("users");
+	console.log("req email",req.body.email);
+	const email = req.body.email;
 
-    const docs = await col.findOne({ email });
+	MongoClient.connect(uri,(err ,db)=> {
+	  const collection = db.db("full_calender").collection('users');
+	  collection.findOne({email},(err, result)=>{
+	  	if(err) throw err;
+	  	console.log(":email:result",result);
+	  	if(result){
 
-    db.close();
+	  		res.status(404).send({error:true, message:`${email}, exists`});
 
-    if (docs) {
-      
-      res.status(404).send({ error: true, message: `${email} exists` });
-    
-    } else {
-      
-      res.status(200).send({ error: false, message: "" });
-    
-    }
-  } catch ({ message: errorCode }) {
-    
-    res.status(errorCode).send(connection.erorCodeMapper[errorCode]);
-  
-  }
+	  	}else{
+	  		
+	  		res.status(200).send({error:false, message:""});
+
+	  	}
+	  })
+	});
 });
+
 
 module.exports = router;
