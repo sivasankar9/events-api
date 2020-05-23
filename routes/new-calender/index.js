@@ -1,51 +1,37 @@
 const express = require("express");
 const router = express.Router();
-const connection = require("../../db");
+const connection = require('./../../db');
 
-router.get("/", connection.authenticate, async (request, response) => {
-  
-  const username = request.username;
+router.post("/", connection.authenticate, async(req, res) => {
 
-  try {
-    const db = await connection.initialize();
+	const username = req.body.username;
 
-    const col = db.collection(`${username}_new_calender`);
+	try{
+		const db = await connection.initialize();
 
-    const docs = await col.find().toArray();
+		const col = db.collection('users');
+		
+		const docs = await col.findOne({username});
 
-    
-    response.send(docs);
-    
-    db.close();
-    
-  } catch ({ message: errorCode }) {
-    
-    response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
-  
-  }
+		db.close();
+		
+		if(docs){
+
+			res.status(404).send({error:true, message:`${username} is not available`});
+
+		}else{
+			
+			res.status(200).send({error:false, message:`${username} is available`});
+		}
+
+		
+	
+	}catch({message:errorCode}){
+		
+		res.status(errorCode).send(connection.erorCodeMapper[errorCode]);
+	}
 
 });
 
-router.post("/", connection.authenticate, async (request, response) => {
-  
-  const {username, body} = request;
-
-  try {
-    const db = await connection.initialize();
-
-    const col = db.collection(`${username}_new_calender`);
-
-    const docs = await col.insertOne(body);
-
-    response.send(docs);
-    
-    db.close();
-  
-  } catch ({ message: errorCode }) {
-    
-    response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
-  
-  }
-});
 
 module.exports = router;
