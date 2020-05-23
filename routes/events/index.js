@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const connection = require('../../db');
+const {authenticate, connect, erorCodeMapper } = require('../../db');
 
-router.get('/', connection.authenticate, async(request, response)=> {
+router.get('/', authenticate, async(request, response)=> {
 
     const username = request.username;
 
     try {
 
-        const db = await connection.initialize();
+        const {client, db} = await connect();
 
         const col = db.collection(`${username}_events`);
 
@@ -16,23 +16,23 @@ router.get('/', connection.authenticate, async(request, response)=> {
 
         response.send(docs);
 
-        db.close();
+        client.close();
 
     } catch ({ message: errorCode }) {
 
-        response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
+        response.status(errorCode).send(erorCodeMapper[errorCode]);
 
     }
 
 });
 
-router.post('/', connection.authenticate, async(request, response)=> {
+router.post('/', authenticate, async(request, response)=> {
 
     const {username, body} = request;
 
     try {
 
-        const db = await connection.initialize();
+        const {client, db} = await connect();
 
         const col = db.collection(`${username}_events`);
 
@@ -40,17 +40,17 @@ router.post('/', connection.authenticate, async(request, response)=> {
 
         response.send(docs);
 
-        db.close();
+        client.close();
 
     } catch ({ message: errorCode }) {
 
-        response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
+        response.status(errorCode).send(erorCodeMapper[errorCode]);
 
     }
 
 });
 
-router.put('/update-calender-event-by-id', connection.authenticate, async(request, response)=> {
+router.put('/update-calender-event-by-id', authenticate, async(request, response)=> {
 
     const {username, body} = request;
 
@@ -66,7 +66,7 @@ router.put('/update-calender-event-by-id', connection.authenticate, async(reques
 
     try {
 
-        const db = await connection.initialize();
+        const {client, db} = await connect();
 
         const col = db.collection(`${username}_events`);
 
@@ -76,12 +76,11 @@ router.put('/update-calender-event-by-id', connection.authenticate, async(reques
 
         response.send(docs);
 
-        db.close();
+        client.close();
 
     } catch (err) {
 
-        response.json({ ok: false });
-        process.exit(0);
+        response.send({ ok: false });
 
     }
 
