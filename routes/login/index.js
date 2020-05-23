@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {connect, erorCodeMapper, generateAccessToken } = require('../../db');
+const connection = require('./../../db');
 
 router.post('/', async(req, res)=> {
 
@@ -8,7 +8,7 @@ router.post('/', async(req, res)=> {
 
     try {
 
-        const {client, db} = await connect();
+        const db = await connection.initialize();
 
         const col = db.collection('users');
 
@@ -20,7 +20,7 @@ router.post('/', async(req, res)=> {
 
         } else {
 
-            const accessToken = generateAccessToken({ username });
+            const accessToken = connection.generateAccessToken({ username });
 
             res.status(200).send({
                 isLogin: true,
@@ -31,11 +31,11 @@ router.post('/', async(req, res)=> {
 
         }
 
-        client.close();
+        db.close();
 
     } catch ({ message: errorCode }) {
 
-        res.status(errorCode).send(erorCodeMapper[errorCode]);
+        res.status(errorCode).send(connection.erorCodeMapper[errorCode]);
 
     }
 

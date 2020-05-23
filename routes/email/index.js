@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {connect, erorCodeMapper } = require('../../db');
+const connection = require('./../../db');
 
 router.post('/', async(req, res)=> {
 
@@ -8,21 +8,27 @@ router.post('/', async(req, res)=> {
 
     try {
 
-        const {client, db} = await connect();
+        const db = await connection.initialize();
 
         const col = db.collection('users');
 
         const docs = await col.findOne({ email });
 
-        docs ? res.status(404).send({ error: true, message: `${email} exists` }) :
+        if (docs) {
+
+            res.status(404).send({ error: true, message: `${email} exists` });
+
+        } else {
 
             res.status(200).send({ error: false, message: '' });
 
-        client.close();
+        }
+
+        db.close();
 
     } catch ({ message: errorCode }) {
 
-        res.status(errorCode).send(erorCodeMapper[errorCode]);
+        res.status(errorCode).send(connection.erorCodeMapper[errorCode]);
 
     }
 
