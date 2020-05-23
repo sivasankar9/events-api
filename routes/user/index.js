@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const connection = require('./../../db');
+const {connect, erorCodeMapper } = require('../../db');
 
 router.post('/', async(req, res)=> {
 
@@ -8,27 +8,21 @@ router.post('/', async(req, res)=> {
 
     try {
 
-        const db = await connection.initialize();
+        const {client, db} = await connect();
 
         const col = db.collection('users');
 
         const docs = await col.findOne({username});
 
-        if (docs) {
-
-            res.status(404).send({error: true, message: `${username} is not available`});
-
-        } else {
+        docs ? res.status(404).send({error: true, message: `${username} is not available`}) :
 
             res.status(200).send({error: false, message: `${username} is available`});
 
-        }
-
-        db.close();
+        client.close();
 
     } catch ({message: errorCode}) {
 
-        res.status(errorCode).send(connection.erorCodeMapper[errorCode]);
+        res.status(errorCode).send(erorCodeMapper[errorCode]);
 
     }
 
