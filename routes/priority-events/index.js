@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const connection = require('../../db');
+const {authenticate, connect, erorCodeMapper } = require('../../db');
 
-router.get('/', connection.authenticate, async(request, response)=> {
+router.get('/', authenticate, async(request, response)=> {
 
     try {
 
-        const db = await connection.initialize();
+        const {client, db} = await connect();
 
         const col = db.collection('priority_status');
 
@@ -14,11 +14,11 @@ router.get('/', connection.authenticate, async(request, response)=> {
 
         response.json(docs);
 
-        db.close();
+        client.close();
 
     } catch ({ message: errorCode }) {
 
-        response.status(errorCode).send(connection.erorCodeMapper[errorCode]);
+        response.status(errorCode).send(erorCodeMapper[errorCode]);
 
     }
 
