@@ -43,6 +43,10 @@ const generateAccessToken = (user)=> {
 const authenticate = (req, res, next)=> {
 
     const authHeader = req.headers.authorization;
+    console.log(">>boyd<<>",req.body);
+    if(req.body ===""){
+        return next(new Error('oos'))
+    }
     const token = authHeader && authHeader.split(' ')[1];
 
     if (token === null) {

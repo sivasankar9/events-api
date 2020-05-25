@@ -34,7 +34,11 @@ app.use('/email', emailRoutes);
 app.use('/login', loginRoutes);
 app.use('/priority-events', priorityeventsRoutes);
 app.use('/new-calender', newCalenderRoutes);
+app.use((err, req, res, next)=> {
 
+    console.log('ERORRrr::', err);
+
+});
 app.options('*', cors(corsConfig));
 
 app.get('/', (req, res)=> {
