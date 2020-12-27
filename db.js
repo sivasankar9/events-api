@@ -13,7 +13,7 @@ const connect = async()=> {
 
     let db;
 
-    const url = `mongodb+srv://${process.env.USER_NAME_DB}:${process.env.PASSWORD_DB}@cluster0-5ahtq.mongodb.net`;
+    const url = `mongodb+srv://${process.env.USER_NAME_DB}:${process.env.PASSWORD_DB}@${process.env.MONGO_CLUSTER}`;
 
     const dbName = 'full_calender';
 
